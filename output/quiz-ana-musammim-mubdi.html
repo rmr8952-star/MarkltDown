@@ -1,0 +1,174 @@
+<title>مسابقة المصمم المبدع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=Tajawal:wght@500;700;800&display=swap">
+<style>
+/* Layout: one centered play card on a field of floating geometric shapes; single bright look for children */
+:root {
+  --navy: #1E2A4A; --paper: #F4F7FB; --peach: #FFF4E3; --muted: #4A5670;
+  --blue: #3B7DDD; --teal: #14917F; --yellow: #F2B33D; --pink: #E5566F; --orange: #F2862E;
+  --good: #15895A; --bad: #C8414F;
+  --display: 'Baloo Bhaijaan 2', Tahoma, sans-serif; --body: 'Tajawal', Tahoma, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--peach); color: var(--navy); font-family: var(--body); direction: rtl; }
+.field { position: fixed; inset: 0; overflow: hidden; pointer-events: none; }
+.field svg { position: absolute; opacity: .22; }
+.wrap { position: relative; min-height: 100%; display: flex; align-items: center; justify-content: center; padding-block: 24px; padding-inline: 16px; }
+.card { width: 100%; max-width: 720px; background: var(--paper); border-radius: 28px; padding: clamp(20px, 4vw, 40px); box-shadow: 0 10px 0 rgba(30,42,74,.12), 0 20px 50px rgba(30,42,74,.12); display: flex; flex-direction: column; gap: 20px; }
+h1, h2 { font-family: var(--display); margin: 0; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: clamp(36px, 8vw, 56px); }
+h2 { font-size: clamp(24px, 5vw, 34px); }
+p { margin: 0; line-height: 1.6; font-size: 19px; }
+.eyebrow { font-weight: 800; color: var(--teal); letter-spacing: .5px; font-size: 16px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.dots span { width: 14px; height: 14px; border-radius: 4px; background: #D9E0EC; }
+.dots span.ok { background: var(--good); border-radius: 50%; }
+.dots span.no { background: var(--bad); transform: rotate(45deg) scale(.8); }
+.dots span.now { background: var(--yellow); outline: 3px solid var(--navy); outline-offset: 1px; }
+.score { font-family: var(--display); font-size: 22px; background: var(--navy); color: var(--paper); border-radius: 999px; padding: 2px 18px; font-variant-numeric: tabular-nums; }
+.art { display: flex; justify-content: center; align-items: center; min-height: 150px; background: var(--peach); border-radius: 20px; padding: 16px; }
+.art svg { max-width: 100%; height: auto; }
+.opts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.opt { font-family: var(--display); font-size: 24px; font-weight: 800; color: var(--navy); background: #fff; border: 3px solid #D9E0EC; border-radius: 18px; padding: 14px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: transform .12s, border-color .12s; min-width: 0; }
+.opt:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--blue); }
+.opt:focus-visible { outline: 4px solid var(--yellow); outline-offset: 2px; }
+.opt:disabled { cursor: default; }
+.opt.right { background: #E2F5EC; border-color: var(--good); }
+.opt.wrong { background: #FBE5E8; border-color: var(--bad); }
+.opt svg { width: 90px; height: 90px; }
+.feedback { min-height: 32px; font-size: 21px; font-weight: 800; }
+.feedback.ok { color: var(--good); } .feedback.no { color: var(--bad); }
+.btn { font-family: var(--display); font-size: 26px; font-weight: 800; border: 0; border-radius: 999px; padding: 10px 36px; background: var(--orange); color: var(--navy); cursor: pointer; box-shadow: 0 5px 0 #B8601A; align-self: center; }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #B8601A; }
+.btn:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px; }
+.stars { font-size: 56px; letter-spacing: 6px; color: var(--yellow); text-align: center; line-height: 1; }
+.stars .off { color: #D9E0EC; }
+.center { text-align: center; align-items: center; }
+.pop { animation: pop .35s cubic-bezier(.3,1.6,.6,1); }
+@keyframes pop { from { transform: scale(.85); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pop { animation: none; } .opt { transition: none; } }
+</style>
+
+<div class="field" aria-hidden="true">
+  <svg width="120" height="120" style="top:6%;right:5%" viewBox="0 0 100 100"><rect width="100" height="100" rx="12" fill="#3B7DDD"/></svg>
+  <svg width="140" height="140" style="bottom:8%;left:4%" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#F2B33D"/></svg>
+  <svg width="130" height="120" style="top:12%;left:8%" viewBox="0 0 100 90"><polygon points="50,0 100,90 0,90" fill="#E5566F"/></svg>
+  <svg width="170" height="90" style="bottom:12%;right:8%" viewBox="0 0 170 90"><rect width="170" height="90" rx="12" fill="#14917F"/></svg>
+</div>
+
+<main class="wrap">
+  <section class="card" id="card" aria-live="polite"></section>
+</main>
+
+<script>
+const C = { navy:'#1E2A4A', blue:'#3B7DDD', teal:'#14917F', yel:'#F2B33D', pink:'#E5566F', ora:'#F2862E' };
+const face = (cx, cy) => `<circle cx="${cx-14}" cy="${cy-6}" r="5" fill="${C.navy}"/><circle cx="${cx+14}" cy="${cy-6}" r="5" fill="${C.navy}"/><path d="M${cx-16} ${cy+10} Q${cx} ${cy+26} ${cx+16} ${cy+10}" stroke="${C.navy}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+const SH = {
+  square: `<svg viewBox="0 0 120 120" width="140" height="140"><rect x="10" y="10" width="100" height="100" rx="10" fill="${C.blue}"/>${face(60,60)}</svg>`,
+  rect: `<svg viewBox="0 0 160 120" width="180" height="135"><rect x="5" y="25" width="150" height="80" rx="10" fill="${C.teal}"/>${face(80,65)}</svg>`,
+  circle: `<svg viewBox="0 0 120 120" width="140" height="140"><circle cx="60" cy="60" r="52" fill="${C.yel}"/>${face(60,60)}</svg>`,
+  tri: `<svg viewBox="0 0 120 120" width="140" height="140"><polygon points="60,6 114,110 6,110" fill="${C.pink}"/>${face(60,78)}</svg>`,
+};
+const rocket = `<svg viewBox="0 0 560 780" width="150" height="210" aria-label="صاروخ من الأشكال"><polygon points="280,20 400,220 160,220" fill="${C.pink}"/><rect x="160" y="220" width="240" height="340" fill="${C.blue}"/><circle cx="280" cy="340" r="62" fill="#F4F7FB"/><circle cx="280" cy="340" r="40" fill="${C.yel}"/><polygon points="160,420 60,600 160,560" fill="${C.teal}"/><polygon points="400,420 500,600 400,560" fill="${C.teal}"/><rect x="200" y="560" width="160" height="50" fill="${C.navy}"/><polygon points="210,610 350,610 280,760" fill="${C.ora}"/></svg>`;
+const dallah = `<svg viewBox="0 0 620 760" width="170" height="210" aria-label="دلة"><circle cx="360" cy="40" r="22" fill="${C.teal}"/><path d="M300 62 h120 l-10 70 h-100z" fill="none" stroke="${C.navy}" stroke-width="12"/><path d="M310 132 h100 q10 60 70 130 q60 80 40 250 q-20 130 -160 160 q-140 -30 -160 -160 q-20 -170 40 -250 q60 -70 70 -130z" fill="none" stroke="${C.navy}" stroke-width="12"/><path d="M250 300 q-120 -40 -200 -200" fill="none" stroke="${C.navy}" stroke-width="16" stroke-linecap="round"/><path d="M480 300 q110 40 90 160 q-10 60 -60 80" fill="none" stroke="${C.navy}" stroke-width="14" stroke-linecap="round"/><path d="M232 380 l25 -22 l25 22 l25 -22 l25 22 l25 -22 l25 22 l25 -22 l25 22 l25 -22" fill="none" stroke="${C.blue}" stroke-width="10"/><path d="M226 450 q22 -26 44 0 q22 26 44 0 q22 -26 44 0 q22 26 44 0 q22 -26 44 0 q22 26 44 0" fill="none" stroke="${C.ora}" stroke-width="10"/></svg>`;
+const line = d => `<svg viewBox="0 0 320 60" width="300" height="60">${d}</svg>`;
+const zig = line(`<polyline points="10,45 40,15 70,45 100,15 130,45 160,15 190,45 220,15 250,45 280,15 310,45" fill="none" stroke="${C.pink}" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>`);
+const dots = line(Array.from({length:12}, (_, i) => `<circle cx="${18+i*26}" cy="30" r="7" fill="${C.teal}"/>`).join(''));
+const wave = line(`<path d="M10 30 q25 -30 50 0 q25 30 50 0 q25 -30 50 0 q25 30 50 0 q25 -30 50 0 q25 30 50 0" fill="none" stroke="${C.ora}" stroke-width="8" stroke-linecap="round"/>`);
+
+// Questions from the lesson. `a` is the correct option's text; options are shuffled each round.
+const Q = [
+  { q: 'ما اسم هذا الشكل؟', art: SH.square, opts: ['المربع', 'الدائرة', 'المثلث'], a: 'المربع' },
+  { q: 'أين الدائرة؟', pick: true, opts: ['circle', 'tri', 'square'], a: 'circle' },
+  { q: 'ما اسم هذا الشكل؟', art: SH.tri, opts: ['المستطيل', 'المثلث', 'المربع'], a: 'المثلث' },
+  { q: 'أين المستطيل؟', pick: true, opts: ['square', 'rect', 'circle'], a: 'rect' },
+  { q: 'من أي الأشكال بُني هذا الصاروخ؟', art: rocket, opts: ['مثلث ومستطيل ودائرة', 'دوائر فقط', 'مربعات فقط'], a: 'مثلث ومستطيل ودائرة' },
+  { q: 'بماذا نبني أشكالنا مع المجموعة في النشاط الأول؟', opts: ['القطع المغناطيسية', 'الطين', 'الرمل'], a: 'القطع المغناطيسية' },
+  { q: 'أيّ هذه من التراث العُماني؟', opts: ['الخنجر', 'الصاروخ', 'الحافلة'], a: 'الخنجر' },
+  { q: 'ما اسم هذا العنصر من التراث العُماني؟', art: dallah, opts: ['المجمر', 'الدلة', 'الخنجر'], a: 'الدلة' },
+  { q: 'ما نوع هذا الخط؟', art: zig, opts: ['مستقيم', 'متعرج', 'منقط'], a: 'متعرج' },
+  { q: 'ما نوع هذا الخط؟', art: dots, opts: ['منقط', 'منحني', 'مستقيم'], a: 'منقط' },
+  { q: 'ما نوع هذا الخط؟', art: wave, opts: ['متعرج', 'منحني', 'منقط'], a: 'منحني' },
+  { q: 'في النشاط الثاني، ماذا نرسم أولًا؟', opts: ['الخطوط الخارجية للشكل', 'الزخارف الملونة', 'الخلفية'], a: 'الخطوط الخارجية للشكل' },
+  { q: 'صح أم خطأ: نزخرف المساحة الداخلية للشكل بخطوط ملونة متنوعة.', opts: ['صح', 'خطأ'], a: 'صح' },
+  { q: 'كم حصة يستغرق كل نشاط؟', opts: ['حصة واحدة', 'حصتان', 'ثلاث حصص'], a: 'حصتان' },
+];
+const NAMES = { square: 'المربع', rect: 'المستطيل', circle: 'الدائرة', tri: 'المثلث' };
+const PRAISE = ['أحسنت!', 'رائع!', 'ممتاز!', 'مبدع!', 'عمل جميل!'];
+
+let order = [], i = 0, score = 0, marks = [];
+const card = document.getElementById('card');
+const shuffle = a => { a = a.slice(); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+
+let ac;
+function tone(freqs, dur = .12) {
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, n) => {
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + n * dur;
+      o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + dur * 1.6);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur * 1.7);
+    });
+  } catch (e) {}
+}
+
+function start() {
+  card.className = 'card center pop';
+  card.innerHTML = `
+    <p class="eyebrow">التربية الفنية · الدرس الثاني</p>
+    <h1>مسابقة المصمم المبدع</h1>
+    <div class="art" style="gap:14px;flex-wrap:wrap">${SH.square}${SH.circle}${SH.tri}</div>
+    <p>${Q.length} سؤالًا عن الأشكال الهندسية والخطوط والتراث العُماني. اختر الإجابة الصحيحة واجمع النجوم!</p>
+    <button class="btn" id="go">ابدأ اللعب</button>`;
+  document.getElementById('go').onclick = () => { order = shuffle(Q); i = 0; score = 0; marks = []; tone([523, 659, 784]); show(); };
+}
+
+function show() {
+  const q = order[i];
+  const opts = shuffle(q.opts);
+  card.className = 'card pop';
+  card.innerHTML = `
+    <div class="top">
+      <div class="dots" aria-label="التقدم">${order.map((_, k) => `<span class="${marks[k] === true ? 'ok' : marks[k] === false ? 'no' : k === i ? 'now' : ''}"></span>`).join('')}</div>
+      <span class="score" aria-label="النقاط">⭐ ${score}</span>
+    </div>
+    <p class="eyebrow">السؤال ${i + 1} من ${order.length}</p>
+    <h2>${q.q}</h2>
+    ${q.art ? `<div class="art">${q.art}</div>` : ''}
+    <div class="opts">${opts.map(o => `<button class="opt" id="opt-${q.pick ? o : opts.indexOf(o)}" data-v="${o}">${q.pick ? SH[o] : o}</button>`).join('')}</div>
+    <p class="feedback" id="fb"></p>
+    <button class="btn" id="next" hidden>${i + 1 < order.length ? 'السؤال التالي' : 'النتيجة'}</button>`;
+  card.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(b, q));
+  card.scrollIntoView({ block: 'nearest' });
+}
+
+function answer(btn, q) {
+  const ok = btn.dataset.v === q.a;
+  card.querySelectorAll('.opt').forEach(b => { b.disabled = true; if (b.dataset.v === q.a) b.classList.add('right'); });
+  const fb = document.getElementById('fb');
+  const label = q.pick ? NAMES[q.a] : q.a;
+  if (ok) { score++; marks[i] = true; fb.className = 'feedback ok'; fb.textContent = PRAISE[Math.floor(Math.random() * PRAISE.length)] + ' الإجابة: ' + label; tone([659, 880]); }
+  else { marks[i] = false; btn.classList.add('wrong'); fb.className = 'feedback no'; fb.textContent = 'حاول مرة أخرى لاحقًا. الإجابة الصحيحة: ' + label; tone([330, 247], .16); }
+  const nx = document.getElementById('next'); nx.hidden = false; nx.focus();
+  nx.onclick = () => { i++; i < order.length ? show() : finish(); };
+}
+
+function finish() {
+  const n = order.length, pct = score / n, stars = pct >= .9 ? 3 : pct >= .6 ? 2 : pct > 0 ? 1 : 0;
+  const msg = stars === 3 ? 'أنت مصمم مبدع حقًّا!' : stars === 2 ? 'عمل رائع! أنت في الطريق لتصبح مصممًا مبدعًا.' : 'بداية جيدة! راجع الأشكال والخطوط وحاول مرة أخرى.';
+  card.className = 'card center pop';
+  card.innerHTML = `
+    <p class="eyebrow">انتهت المسابقة</p>
+    <div class="stars" aria-label="${stars} من 3 نجوم">${[0, 1, 2].map(k => `<span class="${k < stars ? '' : 'off'}">★</span>`).join('')}</div>
+    <h1>${score} من ${n}</h1>
+    <p>${msg}</p>
+    <button class="btn" id="again">العب مرة أخرى</button>`;
+  tone(stars >= 2 ? [523, 659, 784, 1046] : [523, 440], .14);
+  document.getElementById('again').onclick = start;
+}
+
+start();
+</script>
