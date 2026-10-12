@@ -53,3 +53,14 @@ Alongside the taste-skill skill, load the matching Emil Kowalski skill:
 
 If these skills are missing, install them first:
 `cd ~ && npx -y skills@latest add emilkowalski/skills -g -a claude-code -y`
+
+### Impeccable plugin (review and refine)
+
+Use the Impeccable plugin skill (`impeccable`) alongside the skills above:
+
+- Before building: `/impeccable shape` to plan the design direction
+- After building, before delivering: `/impeccable critique` and `/impeccable audit`, then fix what they find
+- Targeted refinements: `/impeccable polish`, `typeset`, `colorize`, `layout`, `animate`, `bolder`, `quieter`, `adapt`, `harden`, `optimize`
+
+If the plugin is missing, install it user-wide first:
+`claude plugin marketplace add pbakaus/impeccable --scope user && claude plugin install impeccable@impeccable --scope user`
