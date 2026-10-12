@@ -18,3 +18,19 @@ CSV, JSON, XML, images (EXIF metadata), audio (transcription), ZIP, EPUB,
 Outlook .msg, YouTube URLs.
 
 The user writes in Arabic; reply in Arabic.
+
+## Design requests (taste-skill)
+
+For any design request (website, landing page, UI, app screen, dashboard,
+redesign, brand kit, design image), first load the matching taste-skill skill
+with the Skill tool, before writing code or generating images:
+
+- Default for frontend/web pages: `design-taste-frontend`
+- Improving an existing site/app: `redesign-existing-projects`
+- Requested style: `minimalist-ui`, `industrial-brutalist-ui`, `high-end-visual-design`, `gpt-taste`
+- Building from an image/mockup: `image-to-code`
+- Design images: `imagegen-frontend-web`, `imagegen-frontend-mobile`, `brandkit`
+- Google Stitch DESIGN.md: `stitch-design-taste`
+
+If these skills are missing, install them first:
+`cd ~ && npx -y skills add https://github.com/Leonxlnx/taste-skill -g -a claude-code -y`
