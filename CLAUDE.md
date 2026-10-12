@@ -34,3 +34,22 @@ with the Skill tool, before writing code or generating images:
 
 If these skills are missing, install them first:
 `cd ~ && npx -y skills add https://github.com/Leonxlnx/taste-skill -g -a claude-code -y`
+
+### Emil Kowalski skills (polish and motion)
+
+Alongside the taste-skill skill, load the matching Emil Kowalski skill:
+
+- Any UI/component work (polish, details): `emil-design-eng`
+- Adding animation or transitions (web): `animate`; React Native/Expo: `animate-expo`
+- Reviewing existing motion: `review-animations`; whole-codebase audit: `improve-animations`
+- Where motion could help: `find-animation-opportunities`
+- Janky/slow animations: `animation-performance`
+- Gestures, springs, sheets, Apple-style UI: `apple-design`
+- Mobile web / PWA feel: `mobile-native`
+- Several variants to compare: `prototype`
+- Stress-testing a component with worst-case data: `break-ui`
+- Choosing a UI library: `pick-ui-library`; Sonner toasts: `ask-sonner`
+- Naming a motion effect: `animation-vocabulary`; Swift code: `write-swift`
+
+If these skills are missing, install them first:
+`cd ~ && npx -y skills@latest add emilkowalski/skills -g -a claude-code -y`
