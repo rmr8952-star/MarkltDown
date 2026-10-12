@@ -19,6 +19,28 @@ Outlook .msg, YouTube URLs.
 
 The user writes in Arabic; reply in Arabic.
 
+## How the design tools get installed
+
+Cloud sessions start in a fresh container, so nothing installed by hand
+survives to the next session. Installs are automatic:
+
+- **Impeccable plugin**: declared in `.claude/settings.json`
+  (`extraKnownMarketplaces` + `enabledPlugins`). Claude Code installs and
+  loads it at startup. Keep it there: plugins load *before* the SessionStart
+  hook runs, so a plugin installed only by the hook is not available until the
+  next Claude start, which a fresh cloud container never gets.
+- **taste-skill and Emil Kowalski skills**: installed into `~/.claude/skills`
+  by `.claude/hooks/session-start.sh`. Skills added there are picked up in
+  the same session.
+- The hook skips anything already installed, retries failed installs 3 times,
+  then falls back (skills: `git clone` and copy; plugin: add it to
+  `~/.claude/settings.json`). Failures only warn and never block the session;
+  they are logged to `~/.claude/session-start-install.log`. Check that log if
+  a skill or `/impeccable` is missing.
+
+The manual install commands below are only for when the automatic install
+failed.
+
 ## Design requests (taste-skill)
 
 For any design request (website, landing page, UI, app screen, dashboard,
@@ -32,7 +54,7 @@ with the Skill tool, before writing code or generating images:
 - Design images: `imagegen-frontend-web`, `imagegen-frontend-mobile`, `brandkit`
 - Google Stitch DESIGN.md: `stitch-design-taste`
 
-If these skills are missing, install them first:
+If these skills are missing (see the install log), install them manually:
 `cd ~ && npx -y skills add https://github.com/Leonxlnx/taste-skill -g -a claude-code -y`
 
 ### Emil Kowalski skills (polish and motion)
@@ -51,7 +73,7 @@ Alongside the taste-skill skill, load the matching Emil Kowalski skill:
 - Choosing a UI library: `pick-ui-library`; Sonner toasts: `ask-sonner`
 - Naming a motion effect: `animation-vocabulary`; Swift code: `write-swift`
 
-If these skills are missing, install them first:
+If these skills are missing (see the install log), install them manually:
 `cd ~ && npx -y skills@latest add emilkowalski/skills -g -a claude-code -y`
 
 ### Impeccable plugin (review and refine)
@@ -62,5 +84,6 @@ Use the Impeccable plugin skill (`impeccable`) alongside the skills above:
 - After building, before delivering: `/impeccable critique` and `/impeccable audit`, then fix what they find
 - Targeted refinements: `/impeccable polish`, `typeset`, `colorize`, `layout`, `animate`, `bolder`, `quieter`, `adapt`, `harden`, `optimize`
 
-If the plugin is missing, install it user-wide first:
+If the plugin is missing (see the install log), install it manually; it loads
+in the next Claude start:
 `claude plugin marketplace add pbakaus/impeccable --scope user && claude plugin install impeccable@impeccable --scope user`
